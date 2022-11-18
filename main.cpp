@@ -62,7 +62,7 @@ Train make_train(int pos){
     if(y == 11){
         return Classical("Москва","Воронеж",0,11,26,{25,},{{9,4}},1);
     }
-};
+}
 
 void take_seats(XLWorksheet wks,Train tr,int pos){
     if(pos > 10)
@@ -70,8 +70,8 @@ void take_seats(XLWorksheet wks,Train tr,int pos){
     minstd_rand random(pos*5);
     unsigned int y = random.operator()();
     string date_s = to_string(y%28+1)+"."+ to_string(y%13+1)+"."+ to_string((y/10)%10+2010);
-    time1 t1 = tr.timer[y%tr.num.size()];
-    time1 t2(t1.a + tr.hours,t1.b + tr.minutes);
+    timer t1 = tr.time[y%tr.num.size()];
+    timer t2(t1.a + tr.hours,t1.b + tr.minutes);
     t2.a += t2.b/60; t2.b = t2.b%60; int days = t2.a/24; t2.a = t2.a%24;
     string date_se = to_string(y%28+1+days)+"."+ to_string(y%13+1)+"."+ to_string((y/10)%10+2010);
     int q = 0;
@@ -81,7 +81,7 @@ void take_seats(XLWorksheet wks,Train tr,int pos){
         wks.cell("G" + to_string(i*5+pos)).value() = date_s+" T "+ to_string(t1.a)+":"+ to_string(t1.b);
         wks.cell("H" + to_string(i*5+pos)).value() = date_se+" T "+ to_string(t2.a)+":"+ to_string(t2.b);
         wks.cell("I" + to_string(i*5+pos)).value() = tr.num[y%tr.num.size()];
-        if(tr.train[q]->seats > 0) {
+        if(tr.train[q]->seats > 4 and q > 0 or tr.train[q]->seats > 0 and q == 0) {
             wks.cell("J" + to_string(i*5+pos)).value() = to_string(q+1) +" - "+ to_string(tr.train[q]->seats);
             tr.train[q]->seats--;
             wks.cell("K" + to_string(i*5+pos)).value() = tr.train[q]->def_price;
@@ -95,15 +95,20 @@ void take_seats(XLWorksheet wks,Train tr,int pos){
     }
 }
 
-
-void make_person(XLWorksheet wks, int i,string s1, string s2, string s3){
-    int id = i;
+unsigned long long int make_card(int key){
+    minstd_rand random(key);
+    unsigned int y  = random.operator()();
     int chance_visa = 50, chance_mir = 30, chance_mastercard = 20;
-    minstd_rand random(i*5);
-    unsigned int y = random.operator()();
     int card = (y%101>=100-chance_visa)?4: (y%101>= 100 - chance_visa - chance_mir) ? 2 : (y % 101 >= 100 - chance_visa - chance_mir - chance_mastercard) ? 5 : 5;
     unsigned long long cardout = card*1000000000000000 + (random.operator()()%1000)*1000000000000
                                  + (random.operator()()%10000)*100000000 + (random.operator()()%10000)*10000 + (random.operator()()%10000);
+    return cardout;
+}
+
+
+void make_person(XLWorksheet wks, int i,string s1, string s2, string s3){
+    int id = i;
+    unsigned long long cardout = make_card(id+10);
     for(int o = (i == 0)?2:1;o<=5;o++) {
         wks.cell("A" + to_string(i*5+o)).value() = s1; wks.cell("B"+ to_string(i*5+o)).value() = s2;
         wks.cell("C" + to_string(i*5+o)).value() = s3 + ((id%2==0)?"ов":"ович");
@@ -123,11 +128,12 @@ int main() {
     auto wks = doc.workbook().worksheet("Sheet1");
     fill1(wks);
     string s1,s2,s3;
-    for(int i = 0;i<10000;i++){
+    int size = 10001;
+    for(int i = 0;i<size;i++){
         s1 = "";s2="";s3="";
         in1>>s1;in2>>s2;in3>>s3;
         make_person(wks,i,s1,s2,s3);
-        if((i % 200 == 0 or i % 200 == 1 or i % 200 == 2 or i % 200 == 3 or i % 200 == 4) and i < 9840)
+        if((i % 200 == 0 or i % 200 == 1 or i % 200 == 2 or i % 200 == 3 or i % 200 == 4) and i < size-160)
             take_seats(wks, make_train(i),i+2),cout<<"progress: "<<i<<endl;
     }
     doc.save();

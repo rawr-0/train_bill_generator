@@ -7,8 +7,8 @@
 
 using namespace std;
 
-struct time1{
-    int a;int b; time1(int hours,int minutes){a=hours;b=minutes;}};
+struct timer{
+    int a;int b; timer(int hours,int minutes){a=hours;b=minutes;}};
 
 class Train {
 public:
@@ -27,16 +27,16 @@ public:
         }
     };
     vector<int> num;
-    vector<time1> timer;
+    vector<timer> time;
     vector<carriage*> train;
     Train(string start, string end, int move,int hours,int minutes);
     void addn(vector<int> number){
         for(int i = 0;i<number.size();i++)
             num.push_back(number[i]);
     }
-    void addt(vector<time1> number){
+    void addt(vector<timer> number){
         for(int i = 0;i<number.size();i++)
-            timer.push_back(number[i]);
+            time    .push_back(number[i]);
     }
     void addc(string nameset, int seats, int price){
         auto* a = new carriage(nameset,seats,price);
@@ -53,7 +53,7 @@ Train::Train(string start, string end, int move,int hours,int minutes) {
     this ->start = start;this ->end = end; move_days = move; this->hours = hours; this->minutes = minutes;
 }
 
-Train Sapsan(string start,string end,int move,int hours,int minutes,vector<int> number,vector<time1> time,bool reverse){
+Train Sapsan(string start,string end,int move,int hours,int minutes,vector<int> number,vector<timer> time,bool reverse){
     Train tr(start,end,move,hours,minutes);
         tr.addn(number);
         tr.addt(time);
@@ -66,9 +66,9 @@ Train Sapsan(string start,string end,int move,int hours,int minutes,vector<int> 
         tr.addc("2B", 66, 1000);
         tr.addc("2E", 40, 2600);
     return tr;
-    }
+}
 
-Train Lastochka(string start,string end,int move,int hours,int minutes,vector<int> number,vector<time1> time,bool reverse){
+Train Lastochka(string start,string end,int move,int hours,int minutes,vector<int> number,vector<timer> time,bool reverse){
     Train tr(start,end,move,hours,minutes);
         tr.addn(number);
     tr.addt(time);
@@ -82,7 +82,7 @@ Train Lastochka(string start,string end,int move,int hours,int minutes,vector<in
     return tr;
 }
 
-Train Classical(string start,string end,int move,int hours,int minutes,vector<int> number,vector<time1> time,bool reverse){
+Train Classical(string start,string end,int move,int hours,int minutes,vector<int> number,vector<timer> time,bool reverse){
    Train tr(start,end,move,hours,minutes);
         tr.addn(number);
     tr.addt(time);
